@@ -107,7 +107,7 @@ export class OptionList {
         return this.options.filter(option => option.shown && !option.disabled);
     }
 
-    filter(term: string): boolean {
+    filter(term: string, filterFn?: (term: string, option: IOption) => boolean): boolean {
         let anyShown: boolean = false;
 
         if (term.trim() === '') {
@@ -115,16 +115,21 @@ export class OptionList {
             anyShown = this.options.length > 0;
         }
         else {
+            if (!filterFn) {
+                filterFn = (term, option) => {
+                    const l: string = Diacritics.strip(option.label).toUpperCase();
+                    const t: string = Diacritics.strip(term).toUpperCase();
+                    return l.indexOf(t) > -1;
+                };
+            }
+
             this.options.forEach((option) => {
-                let l: string = Diacritics.strip(option.label).toUpperCase();
-                let t: string = Diacritics.strip(term).toUpperCase();
-                option.shown = l.indexOf(t) > -1;
+                option.shown = filterFn(term, option);
 
                 if (option.shown) {
                     anyShown = true;
                 }
             });
-
         }
 
         this.highlight();

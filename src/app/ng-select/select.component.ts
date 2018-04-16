@@ -11,6 +11,8 @@ export const SELECT_VALUE_ACCESSOR: ExistingProvider = {
     multi: true
 };
 
+type TFilterFunction = (term: string, option: IOption) => boolean;
+
 @Component({
     selector: 'ng-select',
     templateUrl: 'select.component.html',
@@ -29,6 +31,17 @@ export class SelectComponent implements ControlValueAccessor, OnChanges, OnInit 
     @Input() disabled: boolean = false;
     @Input() multiple: boolean = false;
     @Input() noFilter: number = 0;
+
+    // Custom filtering
+    private _filterFunction: TFilterFunction | null = null;
+    get filterFunction (): TFilterFunction | null {
+        return this._filterFunction;
+    }
+    @Input() set filterFunction (v: TFilterFunction | null) {
+        v = v || null;
+        this._filterFunction = v;
+        this.filterInputChanged.emit(this.filterInput.nativeElement.value);
+    }
 
     // Style settings.
     @Input() highlightColor: string;
@@ -394,7 +407,7 @@ export class SelectComponent implements ControlValueAccessor, OnChanges, OnInit 
             this.updateFilterWidth();
         }
         setTimeout(() => {
-            let hasShown: boolean = this.optionList.filter(term);
+            let hasShown: boolean = this.optionList.filter(term, this.filterFunction);
             if (!hasShown) {
                 this.noOptionsFound.emit(term);
             }

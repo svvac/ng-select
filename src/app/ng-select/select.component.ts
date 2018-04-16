@@ -11,7 +11,7 @@ export const SELECT_VALUE_ACCESSOR: ExistingProvider = {
     multi: true
 };
 
-type TFilterFunction = (term: string, option: IOption) => boolean;
+export type TFilterFunction = (term: string, option: IOption) => boolean;
 
 @Component({
     selector: 'ng-select',
